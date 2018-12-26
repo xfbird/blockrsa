@@ -39,6 +39,25 @@ func Test_NewRSAKey(t *testing.T) {
 	}
 
 }
+func Test_NewPubRSAKey(t *testing.T) {
+	bb, err := NewPubRSAKey([]byte(Pubkey))
+	if err != nil {
+		t.Error(err)
+	}
+	ss, err := bb.BlockRSAEncrypt([]byte(plainText))
+	if err != nil {
+		t.Error(err)
+	}
+
+	str, err := rsak.BlockRSADecrypt(ss)
+	if err != nil {
+		t.Error(err)
+	}
+	if strings.Compare(string(str), plainText) != 0 {
+		t.Error(errors.New("加解密验证失败"))
+	}
+
+}
 
 func Test_EncryptDecrypt(t *testing.T) {
 	if rsak == nil {

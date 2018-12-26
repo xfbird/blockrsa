@@ -62,14 +62,21 @@ func NewRSAKey(prevkeytxt []byte) (*RSAKey, error) {
 
 //NewPubRSAKey 基于提供的公钥信息 创建RSA 加密对象。仅用于 进行加密
 //NewPubRSAKey RSA encryption object is created based on the public key information provided.
-func NewPubRSAKey(prevkeytxt []byte) (*RSAKey, error) {
+func NewPubRSAKey(publickeytxt []byte) (*RSAKey, error) {
 	rsaKey := &RSAKey{nil, nil}
-	block, _ := pem.Decode(prevkeytxt)
+	block, _ := pem.Decode(publickeytxt)
+	if block == nil {
+		return nil, errorRSAKeyArg
+	}
+
 	opub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
-	rsaKey.pri.PublicKey = opub.(rsa.PublicKey)
+
+	rsaKey.pri = new(rsa.PrivateKey)
+	rsaKey.pri.PublicKey = *opub.(*rsa.PublicKey)
+	rsaKey.randr = rand.Reader
 	return rsaKey, nil
 }
 
@@ -96,7 +103,7 @@ func (rsak *RSAKey) Base64RSADecrypt(ciphertext string) ([]byte, error) {
 //BlockRSAEncrypt 对于 []byte 明文 进行 基于公钥 加密 输出  []byte
 //BlockRSAEncrypt For [] byte plaintext, output [] byte based on public key encryption
 func (rsak *RSAKey) BlockRSAEncrypt(plainText []byte) (retEncrypyBlock []byte, err error) {
-	if rsak.pri.PublicKey.N != nil && plainText != nil && len(plainText) > 0 {
+	if rsak.pri != nil && rsak.pri.PublicKey.N != nil && plainText != nil && len(plainText) > 0 {
 		blocksize := rsak.pri.Size() - 11
 		msglen := len(plainText)
 		Resilen := msglen
