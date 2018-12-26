@@ -1,4 +1,4 @@
-package rsablock
+package blockrsa
 
 import (
 	"errors"

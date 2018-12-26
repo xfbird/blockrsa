@@ -23,7 +23,7 @@
 // BlockRSADecrypt 对于 []byte 密文 进行 基于私钥 解密 输出 []byte 无私钥信息的 RSAKey 无法工作
 // Package rsa implements RSA encryption as specified in PKCS#1.
 
-package rsablock
+package blockrsa
 
 import (
 	"crypto/rand"
